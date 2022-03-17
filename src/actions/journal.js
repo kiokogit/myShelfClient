@@ -1,8 +1,8 @@
 import * as api from '../api/journalApi';
 
-export const getJournal = () => async (dispatch) => {
+export const getJournal = (type) => async (dispatch) => {
     try {
-        const { data } = await api.getJournal();
+        const { data } = await api.getJournal(type);
         dispatch({ type: 'GET_JOURNAL', payload: data });
     } catch (e) {
         console.log(e)
@@ -15,7 +15,7 @@ export const addEntry = (type, entry) => async (dispatch) => {
     } catch (e) {
         console.log(e)
     }
-}
+};
 
 export const delEntry = (type, id) => async (dispatch) => {
     try {
@@ -23,7 +23,7 @@ export const delEntry = (type, id) => async (dispatch) => {
     } catch (e) {
         console.log(e)
     }
-}
+};
 
 export const editEntry = (type, id, entry) => async (dispatch) => {
     try {
@@ -31,4 +31,4 @@ export const editEntry = (type, id, entry) => async (dispatch) => {
     } catch (e) {
         console.log(e)
     }
-}
+};

@@ -1,8 +1,7 @@
 import axios from 'axios'
+import env from 'react-dotenv'
 
-const baseUrl = 'http://localhost:8000/api/bookshelf/'
-
-const API = axios.create({ baseURL: baseUrl });
+const API = axios.create({ baseURL: `${env.BASE_URL}bookshelf/`});
 
 export const getBooks = () => API.get('books/all/');
 export const addBook = (book) => API.post('books/add/', book);

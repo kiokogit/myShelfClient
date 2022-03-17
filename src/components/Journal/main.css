@@ -1,0 +1,14 @@
+.journal-body {
+    background-color: rgb(0, 0, 0);
+    color: white;
+    overflow-block: hidden;
+}
+
+.navbar{
+    background-color: rgb(255, 255, 255);
+}
+
+.main-win {
+    background-color: rgb(105, 95, 116);
+    color: whitesmoke;
+}
