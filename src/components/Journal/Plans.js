@@ -1,4 +1,4 @@
-import { Button, InputLabel,TextField, Typography} from '@material-ui/core'
+import { InputLabel,TextField, Typography, Button} from '@material-ui/core'
 import moment from 'moment';
 
 import React, { useState, useEffect } from 'react'
@@ -8,50 +8,47 @@ import { getJournal } from '../../actions/journal';
 import { ContentBox } from '../Dialogs/ContentBox';
 
 // Plans
-export const Plans = ({ submitEntry, deleteEntry, cancelledDialog }) => {
+export const Plans = ({ submitEntry,cancelledDialog }) => {
     const [add, setAdd] = useState(false);
-
-    // to effect the state by listening to clicks and submissions
-    const [effect, setEffect] = useState(0);
-    const newEffect = effect + 1;
 
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getJournal('plan'))
-    }, [dispatch, effect]);
+    }, [dispatch]);
 
     const plans = useSelector(state => state.journal.plan)
 
     const editForm = (
         <div>
-            <div>
-                <TextField id='title' required label='Goal' />
-                <TextField id='description' label='Description...' fullWidth multiline={true} />
-                <InputLabel>Deadline</InputLabel>
-                <TextField id='deadline' type='date' />
-            </div>
+            <TextField id='title' required label='Goal' />
+            <TextField id='description' label='Description...' fullWidth multiline={true} />
+            <InputLabel>Deadline</InputLabel>
+            <TextField id='deadline' type='date' />
         </div>
     );
 
-    const actions = (
+    const onsubmit = (e) => {
+        e.preventDefault();
+        const entry = {
+            'title': document.getElementById('title').value,
+            'description': document.getElementById('description').value,
+            'deadline': document.getElementById('deadline').value,
+        }
+        submitEntry('plan', entry);
+        setAdd(false);
+    };
+
+    const expandedActions = (plan)=>(
         <div>
-            <Button onClick={e => {
-                e.preventDefault();
-                const entry = {
-                    'title': document.getElementById('title').value,
-                    'description': document.getElementById('description').value,
-                    'deadline': document.getElementById('deadline').value,
-                }
-                submitEntry('plan', entry);
-                setAdd(false);
-                setEffect(newEffect);
-            }}>Save</Button>
-            <Button onClick={e => {
-                cancelledDialog()
-                setAdd(false)
-            }}>CANCEL</Button>
+            <Button>Mark As Achieved</Button>
+            <Button>Mark As Aborted</Button>
         </div>
     );
+
+    const oncancel = (e) => {
+        cancelledDialog()
+        setAdd(false)
+    };
 
     const details = (plan) => (
         <div>
@@ -66,7 +63,9 @@ export const Plans = ({ submitEntry, deleteEntry, cancelledDialog }) => {
                 title={'Plans'}
                 type={'plan'}
                 details={details}
-                actions={actions}
+                onsubmit={onsubmit}
+                oncancel={oncancel}
+                expandedActions={expandedActions}
                 list={plans}
                 add={add}
                 setAdd={setAdd}

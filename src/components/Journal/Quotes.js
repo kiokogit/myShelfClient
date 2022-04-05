@@ -8,15 +8,11 @@ import { MyDialog } from '../Dialogs/Dialogs';
 // Quotes
 export const Quotes = ({ submitEntry, deleteEntry, cancelledDialog }) => {
     const [add, setAdd] = useState(false);
-
-    // to effect the state by listening to clicks and submissions
-    const [effect, setEffect] = useState(0);
-    const newEffect = effect + 1
     
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getJournal('quote'))
-    }, [dispatch, effect]);
+    }, [dispatch]);
 
     const quotes = useSelector(state => state.journal.quote)
 
@@ -27,21 +23,17 @@ export const Quotes = ({ submitEntry, deleteEntry, cancelledDialog }) => {
         </div>
     );
 
-    const actions = (
-        <div>
-            <Button onClick={e => {
-                e.preventDefault();
-                const entry = { 'source': document.getElementById('source').value, 'quote': document.getElementById('quote').value }
-                submitEntry('quote', entry)
-                setAdd(false)
-                setEffect(newEffect);
-            }}>Save</Button>
-            <Button onClick={e => {
-                cancelledDialog()
-                setAdd(false)
-            }}>CANCEL</Button>
-        </div>
-    );
+    const onsubmit = (e) => {
+        e.preventDefault();
+        const entry = { 'source': document.getElementById('source').value, 'quote': document.getElementById('quote').value }
+        submitEntry('quote', entry)
+        setAdd(false)
+    };
+
+    const oncancel = (e) => {
+        cancelledDialog()
+        setAdd(false)
+    };
 
     return (
         <div>
@@ -50,7 +42,7 @@ export const Quotes = ({ submitEntry, deleteEntry, cancelledDialog }) => {
             </h2>
             <hr />
             <hr />
-            {add && <MyDialog open={add} title='Type or Paste the Quote' content={editForm} actions={actions} />}
+            {add && <MyDialog open={add} title='Type or Paste the Quote' content={editForm} onsubmit={onsubmit} oncancel={oncancel} />}
             <div>
                 {quotes?.length < 1 ? 'No Quotes to Show' : quotes?.map((quote, i = 0) =>
                     <div key={quote.id}>
@@ -58,7 +50,6 @@ export const Quotes = ({ submitEntry, deleteEntry, cancelledDialog }) => {
                             <Button onClick={(e) => {
                                 e.preventDefault();
                                 deleteEntry('quote', quote.id);
-                                setEffect(newEffect);
                             }}>x</Button>
                         </p>
                         <p> ~ {quote.source}</p>

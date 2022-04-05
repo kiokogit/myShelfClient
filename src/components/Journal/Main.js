@@ -1,13 +1,13 @@
 // React
 import React, { useState} from 'react'
-import { useDispatch} from 'react-redux'
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux';
 
 // Styling
 import { Button, ButtonGroup, Card } from '@material-ui/core'
 
 // Functions
-import { addEntry, delEntry, editEntry } from '../../actions/journal';
+import { addEntry, editEntry } from '../../actions/journal';
 
 // Components
 import { Home } from './Home';
@@ -19,61 +19,41 @@ import { Events } from './Events';
 import { Projects } from './Projects';
 import { Quotes } from './Quotes';
 import { Budget } from './Budget';
-import { AlertBox } from '../Dialogs/AlertBox';
+import { AlertBox, infoAlert } from '../Dialogs/AlertBox';
 
 // Journal Container
 export const Journal = () => {
     const dispatch = useDispatch();
     const [win, setWin] = useState('home');
-    const [dialog, setDialog] = useState(null);
+    const [alert, setAlert] = useState(null);
 
-    //func to disappear the alert box, 10s
-    if (dialog !== null) {
+    //func to disappear the alert box, 5s
+    if (alert !== null) {
         setTimeout(() => {
-            setDialog(null)
-        }, 7000);
+            setAlert(null)
+        }, 5000);
     };
 
     const cancelledDialog = () => {
-        setDialog({
-            title: 'warning',
-            content: `Operation Cancelled by user`
-        })
+        setAlert(infoAlert)
     };
 
     // send a journal entry
     const submitEntry = (type, entry) => {
-        dispatch(addEntry(type, entry))
-        setDialog({
-            title: 'success',
-            content: `A new ${type} entry has been saved`
-        })
-    };
-
-    // delete a journal entry
-    const deleteEntry = (type, id) => {
-        dispatch(delEntry(type, id))
-        setDialog({
-            title: 'error',
-            content: `You have Successfully deleted an entry: ${type}`
-        })
+        dispatch(addEntry(type, entry, setAlert))
     };
 
     // edit entries
     const editingEntry = (type, id, entry) => {
-        dispatch(editEntry(type, id, entry))
-        setDialog({
-            title: 'info',
-            content: `${type} details updated Successfully`
-        })
+        dispatch(editEntry(type, id, entry, setAlert))
     };
 
     return (
-        <div className='journal-body'>
+        <div>
             <Card style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                 <div>
                     <Button component={Link} to='/' >HOME</Button>
-                    <Button onClick={() => setWin('home')}>Dashboard</Button>
+                    <Button component={Link} to='home/' onClick={() => setWin('home')}>Dashboard</Button>
                 </div>
                 <div>Journal</div>
                 <div>
@@ -81,28 +61,28 @@ export const Journal = () => {
             </Card>
             <div className='navbar'>
                 <ButtonGroup color='primary'>
-                    <Button variant={win === 'diary' ? 'contained' : ''} onClick={() => setWin('diary')} >Diary</Button>
-                    <Button variant={win === 'meetings' ? 'contained' : ''} onClick={() => setWin('meetings')} >Meetings</Button>
-                    <Button variant={win === 'todo' ? 'contained' : ''} onClick={() => setWin('todo')} >Tasks/Todos</Button>
-                    <Button variant={win === 'events' ? 'contained' : ''} onClick={() => setWin('events')} >Events</Button>
-                    <Button variant={win === 'plans' ? 'contained' : ''} onClick={() => setWin('plans')} >Plans</Button>
-                    <Button variant={win === 'projects' ? 'contained' : ''} onClick={() => setWin('projects')} >Projects</Button>
-                    <Button variant={win === 'quotes' ? 'contained' : ''} onClick={() => setWin('quotes')} >Quotes</Button>
-                    <Button variant={win === 'budget' ? 'contained' : ''} onClick={() => setWin('budget')} >Budget</Button>
+                    <Button component={Link} to='diary/' variant={win === 'diary' ? 'contained' : ''} onClick={() => setWin('diary')} >Diary</Button>
+                    <Button component={Link} to='meetings/' variant={win === 'meetings' ? 'contained' : ''} onClick={() => setWin('meetings')} >Meetings</Button>
+                    <Button component={Link} to='todos/' variant={win === 'todo' ? 'contained' : ''} onClick={() => setWin('todo')} >Tasks/Todos</Button>
+                    <Button component={Link} to='events/' variant={win === 'events' ? 'contained' : ''} onClick={() => setWin('events')} >Events</Button>
+                    <Button component={Link} to='plans/' variant={win === 'plans' ? 'contained' : ''} onClick={() => setWin('plans')} >Plans</Button>
+                    <Button component={Link} to='projects/' variant={win === 'projects' ? 'contained' : ''} onClick={() => setWin('projects')} >Projects</Button>
+                    <Button component={Link} to='quotes/' variant={win === 'quotes' ? 'contained' : ''} onClick={() => setWin('quotes')} >Quotes</Button>
+                    <Button component={Link} to='budget/' variant={win === 'budget' ? 'contained' : ''} onClick={() => setWin('budget')} >Budget</Button>
                 </ButtonGroup>
             </div>
             <div className='main-win'>
-                {dialog !== null && <AlertBox title={dialog.title} content={dialog.content} />}
+                {alert !== null && <AlertBox severity={alert.severity} message={alert.message} />}
                 
                 {win === 'home' && <Home />}
-                {win === 'todo' && <Todo editingEntry={editingEntry} deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'diary' && <Diary deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'plans' && <Plans editingEntry={editingEntry} deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'meetings' && <Meetings editingEntry={editingEntry} deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'events' && <Events editingEntry={editingEntry} deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'projects' && <Projects editingEntry={editingEntry} deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'quotes' && <Quotes deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
-                {win === 'budget' && <Budget deleteEntry={deleteEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'todo' && <Todo editingEntry={editingEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'diary' && <Diary submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'plans' && <Plans editingEntry={editingEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'meetings' && <Meetings editingEntry={editingEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'events' && <Events editingEntry={editingEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'projects' && <Projects editingEntry={editingEntry} submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'quotes' && <Quotes submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
+                {win === 'budget' && <Budget submitEntry={submitEntry} cancelledDialog={cancelledDialog} />}
             </div>
         </div>
     )

@@ -1,21 +1,18 @@
-import { Button, TextField } from '@material-ui/core'
+import {  TextField, Button } from '@material-ui/core'
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { getJournal } from '../../actions/journal';
 import { ContentBox } from '../Dialogs/ContentBox';
 
 
-export const Diary = ({ submitEntry, deleteEntry, cancelledDialog }) => {
+export const Diary = ({ submitEntry,cancelledDialog }) => {
     const [add, setAdd] = useState(false);
 
-    // to effect the state by listening to clicks and submissions
-    const [effect, setEffect] = useState(0);
-    const newEffect = effect + 1;
 
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getJournal('diary'))
-    }, [dispatch, effect]);
+    }, [dispatch]);
 
     const diary = useSelector(state => state.journal.diary)
 
@@ -26,32 +23,37 @@ export const Diary = ({ submitEntry, deleteEntry, cancelledDialog }) => {
         </div>
     );
 
-    const actions = (
-        <div>
-            <Button onClick={e => {
-                e.preventDefault();
-                const entry = { 'title': document.getElementById('title').value, 'description': document.getElementById('description').value }
-                submitEntry('diary', entry);
-                setAdd(false);
-                setEffect(newEffect)
-            }}>Save</Button>
-            <Button onClick={e => {
-                cancelledDialog();
-                setAdd(false)
-            }}>CANCEL</Button>
-        </div>
-    );
+    const onsubmit = (e) => {
+        e.preventDefault();
+        const entry = { 'title': document.getElementById('title').value, 'description': document.getElementById('description').value }
+        submitEntry('diary', entry);
+        setAdd(false);
+    }
+    const oncancel = (e) => {
+        e.preventDefault();
+        cancelledDialog();
+        setAdd(false)
+    };
 
     const details = (diary) => diary.description
+
+    const expandedActions = (diary) => (
+        <>
+            <Button >LIKE</Button>
+            <Button >COPY TEXT</Button>
+        </>
+    )
 
     return (
         <div>
             <ContentBox
                 list={diary}
                 details={details}
-                actions={actions}
+                onsubmit={onsubmit}
+                oncancel={oncancel}
+                expandedActions={expandedActions}
                 editForm={editForm}
-                type='Diary'
+                type='diary'
                 title='My Diary'
                 add={add}
                 setAdd={setAdd}

@@ -4,21 +4,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getJournal } from '../../actions/journal';
 
 import { ContentBox } from '../Dialogs/ContentBox';
-import moment from 'moment';
-
 
 // Meetings Plans
-export const Meetings = ({ submitEntry, deleteEntry, cancelledDialog }) => {
+export const Meetings = ({ submitEntry,cancelledDialog, editingEntry }) => {
     const [add, setAdd] = useState(false);
-    
-    // to effect the state by listening to clicks and submissions
-    const [effect, setEffect] = useState(0);
-    const newEffect = effect + 1;
 
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(getJournal('meeting'))
-    }, [dispatch, effect]);
+    }, [dispatch]);
 
     const meetings = useSelector(state => state.journal.meeting)
 
@@ -28,7 +22,7 @@ export const Meetings = ({ submitEntry, deleteEntry, cancelledDialog }) => {
                 <TextField id='title' required label='Meet With...' />
             </div>
             <div>
-                <TextField id='venue' required label='Venue/Link' />
+                <TextField id='venue' required label='Venue/Link' fullWidth />
             </div>
             <InputLabel htmlFor='date'>Date</InputLabel>
             <div>
@@ -46,62 +40,63 @@ export const Meetings = ({ submitEntry, deleteEntry, cancelledDialog }) => {
                 <TextField id='description' label='Purpose...' fullWidth multiline={true} />
             </div>
             <div>
-                <TextField id='agenda' required label='Agenda' />
+                <TextField id='agenda' required label='Agenda' fullWidth />
             </div>
             <div>
-                <TextField id='called_by' label='Chaired by...' />
+                <TextField id='called_by' required label='Chaired by...' fullWidth />
             </div>
             <div>
-                <TextField id='requirements' label='Requirements' />
+                <TextField id='requirements' label='Requirements' fullWidth />
             </div>
             <div>
-                <TextField id='my_contribution' label='My Contribution' />
+                <TextField id='my_contribution' label='My Contribution' fullWidth />
             </div>
         </div>
     );
 
-    const actions = (
-        <div>
-            <Button onClick={e => {
-                e.preventDefault();
-                const entry = {
-                    'title': document.getElementById('title').value,
-                    'description': document.getElementById('description').value,
-                    'venue': document.getElementById('venue').value,
-                    'date': document.getElementById('date').value,
-                    'start_time': document.getElementById('start_time').value,
-                    'end_time': document.getElementById('end_time').value,
-                    'agenda': document.getElementById('agenda').value,
-                    'called_by': document.getElementById('called_by').value,
-                    'requirements': document.getElementById('requirements').value,
-                    'my_contribution': document.getElementById('my_contribution').value,
-                }
-                submitEntry('meeting', entry);
-                setAdd(false);
-                setEffect(newEffect);
-            }}>Save</Button>
-            <Button onClick={e => {
-                cancelledDialog();
-                setAdd(false)
-            }}>CANCEL</Button>
-        </div>
-    );
+    const onsubmit = (e) => {
+        e.preventDefault();
+        const entry = {
+            'title': document.getElementById('title').value,
+            'description': document.getElementById('description').value,
+            'venue': document.getElementById('venue').value,
+            'date': document.getElementById('date').value,
+            'start_time': document.getElementById('start_time').value,
+            'end_time': document.getElementById('end_time').value,
+            'agenda': document.getElementById('agenda').value,
+            'called_by': document.getElementById('called_by').value,
+            'requirements': document.getElementById('requirements').value,
+            'my_contribution': document.getElementById('my_contribution').value,
+        }
+        submitEntry('meeting', entry);
+        setAdd(false);
+    };
+
+    const oncancel = (e) => {
+        cancelledDialog();
+        setAdd(false)
+    };
 
     const details = (meeting) => (
         <div >
             <p>{meeting.description}</p>
-            <Typography style={new Date(meeting.date) < new Date() ? { backgroundColor: 'red' } : { backgroundColor: 'green', color:'white' }}> Date: {new Date(meeting.date).toDateString()} - {new Date(meeting.date) < new Date() ?'Passed':"Ahead"}: {moment(meeting.date).fromNow()}  </Typography>
+            <Typography> Date: {new Date(meeting.date).toDateString()} </Typography>
             <Typography>From: {meeting.start_time} hrs</Typography>
             <Typography>To: {meeting.end_time} hrs</Typography>
             <Typography>Venue: {meeting.venue}</Typography>
             <Typography>Agenda:{meeting.agenda}</Typography>
+            <p>Availability: {meeting.available ? 'Positive' : 'Negative'}</p>
         </div>
     );
 
-    const editActions = (
+    const expandedActions = (meeting)=>(
         <div>
-            Availability:
-            <Button>Confirm</Button>
+            {new Date(meeting.date)>new Date() ?
+                <Button onClick={e => {
+                    e.preventDefault();
+                    const entry = { ...meeting, available: !meeting.available }
+                    editingEntry('meeting', meeting.id, entry)
+                }} >{meeting.available ? 'Cancel Availability' : 'Click to Attend'}</Button> : 'Old meeting'}
         </div>
     )
 
@@ -111,12 +106,13 @@ export const Meetings = ({ submitEntry, deleteEntry, cancelledDialog }) => {
                 title={'Meetings'}
                 type={'meeting'}
                 details={details}
-                actions={actions}
+                onsubmit={onsubmit}
+                oncancel={oncancel}
+                expandedActions={expandedActions}
                 list={meetings}
                 add={add}
                 setAdd={setAdd}
                 editForm={editForm}
-                editActions={editActions}
             />
         </div>
     )

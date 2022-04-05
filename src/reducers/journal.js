@@ -4,9 +4,9 @@ export const journal = (state = initialState, { type, payload }) => {
   switch (type) {
 
     case 'GET_JOURNAL':
-      return { ...state, ...payload };
+      return payload;
 
-  default:
-    return state
+    default:
+      return state
   }
-}
+};
